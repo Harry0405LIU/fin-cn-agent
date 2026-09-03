@@ -1,0 +1,24 @@
+# ===== 核心依赖（运行每日选股/牛熊辩论必需）=====
+akshare>=1.10.0
+pandas>=1.5.0
+numpy>=1.24.0
+matplotlib>=3.6.0
+requests>=2.28.0
+httpx>=0.24.0
+beautifulsoup4>=4.12.0
+pyarrow>=10.0.0
+
+# LLM Provider SDK（至少配置一个 provider 即可）
+anthropic>=0.34.0
+openai>=1.30.0
+
+# ===== 可选数据源（在代码中 try/except 导入，缺失会自动跳过）=====
+yfinance>=0.2.0
+baostock>=0.8.8
+efinance>=0.4.0
+
+# ===== 可选：Web 界面 =====
+# flask>=3.0.0
+
+# ===== 可选：港股 Longport OpenAPI（需要 APP_KEY/SECRET/TOKEN）=====
+# longport>=2.0.0

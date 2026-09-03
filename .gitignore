@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 环境变量
+.env
+
+# 数据文件
+data/cache/
+data/calendar/
+data/logs/
+data/reports/
+data/db/
+data/strategy/
+data/*.json
+data/*.db
+data/*.xlsx
+!data/.gitkeep
+
+# 日志
+logs/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 虚拟环境
+venv/
+.venv/
+
+# 一次性脚本（个人调试/修复，不随项目分发）
+scripts/oneoff/
+
+# 个人笔记/记忆
+memory/
+
+# Claude Code 配置
+.claude/
+
+# 本地定时任务配置（含个人路径，需本地生成）
+config/schedules/
+
+# 报告输出（默认输出目录）
+output/
+
+# 过程文档 / 测试数据（内部，不随项目分发）
+docs/
+tests/
+
+# 个人化 / 暂时用不到的旁支功能（保留在本地，不进公开仓库）
+xueqiu/
+crawler/
+tools/
+web/
+stock/
+agents/content/
+agents/notification/
+core/db/
