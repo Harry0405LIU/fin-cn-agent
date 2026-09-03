@@ -62,17 +62,18 @@ python generate_daily_selection_md.py
 
 ```
 fin-agent/
-├── agents/            # 各分析 Agent（辩论/选股/技术面/内容）
+├── agents/            # 各分析 Agent（辩论/选股/技术面）
 │   ├── bull_agent.py      # 芒格（多头）
 │   ├── bear_agent.py      # 巴菲特（空头）
 │   ├── debate_agent.py    # 辩论协调器
 │   └── daily_selection_agent.py  # 每日选股主流程
 ├── core/              # LLM 客户端、数据获取、缓存、IO 工具
 ├── config/settings.py # 全局配置（支持 .env / 环境变量）
-├── chanlun/           # 缠论分析
-├── elliott/           # 艾略特波浪分析
-├── stock/             # 报告生成
-├── scripts/           # 启动脚本（含 launchd 定时任务）
+├── chanlun/           # 缠论分析（分型/笔/中枢/买卖点/背驰）
+├── elliott/           # 艾略特波浪分析（个股）
+├── skills/            # 巴菲特 / 芒格 persona 定义
+├── services/          # 企业微信 Webhook 推送
+├── scripts/           # 启动脚本（launchd 定时任务模板）
 └── generate_daily_selection_md.py  # 每日报告入口
 ```
 
