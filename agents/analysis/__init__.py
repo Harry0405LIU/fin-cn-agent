@@ -18,7 +18,6 @@ from .elliott_validator import (
 )
 from .etf_fundamental import ETFFundamentalAnalyzer, RECOMMENDED_ETFS
 from .etf_analyzer import ETFAnalyzer, get_recommended_etfs_with_pool
-from .chan_agent import ChanTheoryAgent
 from .bottom_asset_screener import BottomAssetScreener
 
 __all__ = [
@@ -45,6 +44,5 @@ __all__ = [
     "RECOMMENDED_ETFS",
     "ETFAnalyzer",
     "get_recommended_etfs_with_pool",
-    "ChanTheoryAgent",
     "BottomAssetScreener",
 ]

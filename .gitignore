@@ -69,3 +69,39 @@ stock/
 agents/content/
 agents/notification/
 core/db/
+scripts/run_daily_stock.sh
+scripts/run_weekly_strategy.sh
+scripts/fix_missing_stocks.py
+
+# 运维/支撑类模块（告警、健康检查、早报、推送模板、配置监听等，与核心选股无关）
+core/alert.py
+core/config_watcher.py
+core/data_source.py
+core/health.py
+core/hot_post_enhancer.py
+core/interaction.py
+core/morning_brief.py
+core/push_template.py
+core/report_exporter.py
+
+# 示例 / 遗留入口 / 工具
+agents/example_usage.py
+run_daily_selection.py
+run_simple_now.py
+run_daily_selection_once.py
+utils/
+scripts/batch_elliott_analysis.py
+
+# 回测框架 / 指数波浪预测（独立功能，非每日选股）
+chanlun/backtest.py
+elliott/backtest.py
+core/backtest.py
+
+# 指数波浪预测 + 微信推送（独立定时任务）
+elliott/daily_update.py
+elliott/charts.py
+scripts/run_elliott_update.sh
+core/wechat.py
+
+# 死代码（ChanTheoryAgent 从未实例化）
+agents/analysis/chan_agent.py

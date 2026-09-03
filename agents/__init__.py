@@ -9,7 +9,6 @@ from .debate_agent import DebateAgent
 from .technical_analyzer import TechnicalAgent
 from .daily_selection_agent import DailyStockSelectionAgent
 from .financial_data_fetcher import FinancialDataFetcher, get_financial_data
-from .analysis.chan_agent import ChanTheoryAgent
 
 __all__ = [
     'BullAgent',
@@ -19,5 +18,4 @@ __all__ = [
     'DailyStockSelectionAgent',
     'FinancialDataFetcher',
     'get_financial_data',
-    'ChanTheoryAgent',
 ]
