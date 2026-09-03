@@ -185,6 +185,225 @@ def _extract_company_subscores(cq):
     return result
 
 
+def _validate_iron_rules(wave_points):
+    """对当前波浪计数做艾略特三条铁律校验。
+
+    铁律：① 2浪不破1浪起点 ② 3浪不是1/3/5浪中最短的 ③ 4浪不进入1浪价格区间。
+    若 wave_points 不足以提取完整推动浪(浪1~浪5)，返回 None（结构进行中或调整浪）。
+    """
+    if not isinstance(wave_points, list) or len(wave_points) < 6:
+        return None
+
+    prices = {}
+    for wp in wave_points:
+        if not isinstance(wp, dict):
+            continue
+        lbl = wp.get('label', '')
+        pr = wp.get('price', 0)
+        if lbl and isinstance(pr, (int, float)):
+            prices[lbl] = pr
+
+    start = prices.get('起点')
+    if start is None:
+        return None
+
+    w1_up = prices.get('浪1顶')
+    w1_dn = prices.get('浪1底')
+    if w1_up is not None and w1_up > start:
+        up = True
+        w1, w2, w3, w4, w5 = w1_up, prices.get('浪2底'), prices.get('浪3顶'), prices.get('浪4底'), prices.get('浪5顶')
+        label = "上升推动浪"
+    elif w1_dn is not None and w1_dn < start:
+        up = False
+        w1, w2, w3, w4, w5 = w1_dn, prices.get('浪2顶'), prices.get('浪3底'), prices.get('浪4顶'), prices.get('浪5底')
+        label = "下跌推动浪"
+    else:
+        return None
+
+    if any(v is None for v in (w1, w2, w3, w4, w5)):
+        return None
+
+    results = []
+    # 规则1：2浪不破起点
+    if up:
+        ok1 = w2 > start
+        detail1 = f"2浪底({w2:.2f}) > 起点({start:.2f})"
+    else:
+        ok1 = w2 < start
+        detail1 = f"2浪顶({w2:.2f}) < 起点({start:.2f})"
+    results.append(("① 2浪不破起点", ok1, detail1))
+
+    # 规则2：3浪不最短
+    len1, len3, len5 = abs(w1 - start), abs(w3 - w2), abs(w5 - w4)
+    ok2 = len3 >= len1 and len3 >= len5
+    detail2 = f"3浪({len3:.2f}) ≥ 1浪({len1:.2f}) 且 ≥ 5浪({len5:.2f})"
+    results.append(("② 3浪不最短", ok2, detail2))
+
+    # 规则3：4浪不入1浪区间
+    if up:
+        ok3 = w4 > w1
+        detail3 = f"4浪底({w4:.2f}) > 1浪顶({w1:.2f})"
+    else:
+        ok3 = w4 < w1
+        detail3 = f"4浪顶({w4:.2f}) < 1浪底({w1:.2f})"
+    results.append(("③ 4浪不入1浪区间", ok3, detail3))
+
+    all_ok = all(r[1] for r in results)
+    return {'direction': label, 'results': results, 'all_ok': all_ok}
+
+
+def _render_elliott_detail(elliott_analysis):
+    """渲染个股波浪分析详情（对标指数波浪分析报告的完整结构）。
+
+    从 get_elliott_for_selection 的输出中提取：波浪定位、浪型结构、多级别共振、
+    情景推演（概率/支撑/阻力/目标/确认否定信号）、斐波那契关键位、评分依据。
+    """
+    if not isinstance(elliott_analysis, dict) or 'error' in elliott_analysis:
+        return []
+    lines = ["**波浪分析详情**:"]
+
+    # 1. 波浪定位 + 趋势
+    wave_position = elliott_analysis.get('wave_position', '')
+    trend = elliott_analysis.get('trend', '')
+    if wave_position:
+        pos = f"- 波浪定位：{wave_position}"
+        if trend:
+            pos += f"（趋势：{trend}）"
+        lines.append(pos)
+
+    # 2. 浪型结构 + 位置判断依据
+    wave_detail = elliott_analysis.get('wave_detail', {})
+    if isinstance(wave_detail, dict):
+        structure = wave_detail.get('wave_structure', '')
+        reasoning = wave_detail.get('position_reasoning', '')
+        if structure:
+            lines.append(f"- 浪型结构：{structure}")
+        if reasoning:
+            lines.append(f"- 位置判断：{reasoning}")
+
+    # 2.5 铁律校验（对完整推动浪做三条铁律校验）
+    iron = _validate_iron_rules(elliott_analysis.get('wave_points'))
+    if iron:
+        verdict = "✅ 三条铁律全部通过" if iron['all_ok'] else "⚠️ 存在铁律违反"
+        lines.append("")
+        lines.append(f"**铁律校验**（{iron['direction']}，{verdict}）:")
+        for name, ok, detail in iron['results']:
+            mark = "✓" if ok else "✗"
+            lines.append(f"- {mark} {name}：{detail}")
+        lines.append("")
+
+    # 3. 多级别共振
+    resonance = elliott_analysis.get('resonance', {})
+    if isinstance(resonance, dict):
+        icon = resonance.get('icon', '')
+        direction = resonance.get('direction', '')
+        details = resonance.get('details', '')
+        warnings = resonance.get('warnings', [])
+        if direction or details:
+            line = f"- 多级别共振：{icon} {direction}"
+            if details:
+                line += f"（{details}）"
+            lines.append(line)
+        if warnings:
+            lines.append(f"- 共振警示：{'；'.join(str(w) for w in warnings)}")
+
+    # 4. 情景推演
+    scenarios = elliott_analysis.get('scenarios', [])
+    if scenarios:
+        lines.append("")
+        lines.append("**情景推演**:")
+        lines.append("| 情景 | 概率 | 支撑 | 阻力 | 目标 |")
+        lines.append("|---|---|---|---|---|")
+        for s in scenarios[:4]:
+            name = s.get('name', '')
+            prob = s.get('probability', '')
+            support = s.get('key_support', '')
+            resistance = s.get('key_resistance', '')
+            target = s.get('target', '')
+            prob_txt = f"{prob}%" if isinstance(prob, (int, float)) else str(prob)
+            lines.append(f"| {name} | {prob_txt} | {support} | {resistance} | {target} |")
+        lines.append("")
+        for s in scenarios[:3]:
+            confirm = s.get('confirm_signals', [])
+            deny = s.get('deny_signals', [])
+            if confirm or deny:
+                parts = []
+                if confirm:
+                    parts.append(f"确认：{'、'.join(str(x) for x in confirm)}")
+                if deny:
+                    parts.append(f"否定：{'、'.join(str(x) for x in deny)}")
+                lines.append(f"- 「{s.get('name', '')}」{'；'.join(parts)}")
+
+    # 5. 斐波那契关键位
+    fib = elliott_analysis.get('fib_levels', {})
+    if isinstance(fib, dict) and fib:
+        items = [(k, v) for k, v in fib.items() if isinstance(v, (int, float))]
+        if items:
+            fib_txt = '  '.join(f"{k}: {v:.2f}" for k, v in items)
+            lines.append("")
+            lines.append(f"- 斐波那契关键位：{fib_txt}")
+
+    # 5.5 量价信号
+    tech_signals = elliott_analysis.get('tech_signals')
+    breakout_status = elliott_analysis.get('breakout_status')
+    if isinstance(tech_signals, dict):
+        parts = []
+        if isinstance(tech_signals.get('momentum'), (int, float)):
+            mom = tech_signals['momentum']
+            parts.append(f"动量{'强' if mom > 0.15 else '弱' if mom < -0.15 else '中性'}({mom:+.2f})")
+        if isinstance(tech_signals.get('volume'), (int, float)):
+            vol = tech_signals['volume']
+            parts.append(f"量能{'放大' if vol > 0.3 else '萎缩' if vol < -0.3 else '平稳'}({vol:+.2f})")
+        if isinstance(tech_signals.get('breakout'), (int, float)):
+            brk = tech_signals['breakout']
+            parts.append(f"突破{'倾向' if brk > 0 else '承压'}({brk:+.2f})")
+        if parts:
+            lines.append("")
+            lines.append(f"- 量价信号：{'；'.join(parts)}")
+    if isinstance(breakout_status, dict):
+        ups = breakout_status.get('breakouts', [])
+        downs = breakout_status.get('breakdowns', [])
+        if ups:
+            lines.append(f"- 突破信号：{'、'.join(str(u) for u in ups)}")
+        if downs:
+            lines.append(f"- 跌破信号：{'、'.join(str(d) for d in downs)}")
+
+    # 5.8 操作要点（从情景支撑/阻力/目标推导）
+    if scenarios:
+        supports = [s.get('key_support') for s in scenarios if isinstance(s.get('key_support'), (int, float))]
+        resistances = [s.get('key_resistance') for s in scenarios if isinstance(s.get('key_resistance'), (int, float))]
+        targets = [s.get('target') for s in scenarios if s.get('target') and s.get('_bullish')]
+        supports = sorted(set(supports))
+        resistances = sorted(set(resistances))
+        cur = elliott_analysis.get('current_price')
+        ops = []
+        if supports:
+            # 取当前价下方的最近支撑 + 下方更深支撑
+            below = [s for s in supports if isinstance(cur, (int, float)) and s < cur]
+            nearest = below[-1] if below else (supports[0] if supports else None)
+            ops.append(f"支撑带：{', '.join(f'{s:.2f}' for s in supports)}")
+        if resistances:
+            above = [r for r in resistances if isinstance(cur, (int, float)) and r > cur]
+            nearest_r = above[0] if above else (resistances[-1] if resistances else None)
+            ops.append(f"阻力带：{', '.join(f'{r:.2f}' for r in resistances)}")
+        if targets:
+            ops.append(f"目标位：{' / '.join(str(t) for t in targets[:2])}")
+        if supports:
+            # 失效位 = 最下方支撑（跌破则结构失效）
+            ops.append(f"失效位：{min(supports):.2f}（跌破则当前计数失效）")
+        if ops:
+            lines.append("")
+            lines.append(f"- 操作要点：{'；'.join(ops)}")
+
+    # 6. 评分依据
+    rationale = elliott_analysis.get('score_rationale', '')
+    if rationale:
+        lines.append(f"- 评分依据：{rationale}")
+
+    lines.append("")
+    return lines
+
+
 def generate_md_report(json_file: Path):
     """从JSON文件生成MD报告"""
     with open(json_file, 'r', encoding='utf-8') as f:
@@ -734,6 +953,9 @@ def generate_md_report(json_file: Path):
                 f"- **解读**：{overall_text}。",
                 ""
             ])
+
+            # 波浪分析详情（对标指数波浪分析报告的完整结构）
+            md_lines.extend(_render_elliott_detail(elliott_analysis))
 
             # 价值评分详情（原三维评分）
             if 'dimension_bull_bear_score' in bb_analysis:

@@ -1670,6 +1670,7 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
                 'wave_structure': wave_structure,
                 'position_reasoning': position_reasoning,
             },
+            'wave_points': wave_points,
             'validation': validation_signals if validation_signals else None,
             'score_rationale': score_rationale,
             # 增强版额外字段
