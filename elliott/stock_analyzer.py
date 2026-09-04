@@ -1622,6 +1622,19 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
             f"elliott_score={elliott_score:+.1f}"
         )
 
+        # 月线收盘价序列（用于波浪可视化：完整价格曲线 + 波浪转折点叠加）
+        monthly_series = []
+        try:
+            if analyzer.monthly_df is not None and len(analyzer.monthly_df) > 0:
+                mdf = analyzer.monthly_df.copy()
+                mdf['date'] = pd.to_datetime(mdf['date'])
+                monthly_series = [
+                    {'date': str(d)[:10], 'close': float(c) if pd.notna(c) else None}
+                    for d, c in zip(mdf['date'], mdf['close'])
+                ]
+        except Exception:
+            monthly_series = []
+
         return {
             'stock_code': symbol,
             'stock_name': name,
@@ -1671,6 +1684,7 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
                 'position_reasoning': position_reasoning,
             },
             'wave_points': wave_points,
+            'monthly_series': monthly_series,
             'validation': validation_signals if validation_signals else None,
             'score_rationale': score_rationale,
             # 增强版额外字段

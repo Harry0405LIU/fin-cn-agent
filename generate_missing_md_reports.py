@@ -407,23 +407,15 @@ def _render_elliott_detail(elliott_analysis):
 def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis) -> str:
     """生成个股波浪分析的自包含 HTML 图表（ECharts）。
 
-    可视化：波浪结构折线 + 斐波那契回撤位 + 支撑/阻力/现价水平线。
+    可视化：月线收盘价曲线 + 波浪转折点标注 + 斐波那契/支撑/阻力/现价水平线。
     """
     if not isinstance(elliott_analysis, dict) or 'error' in elliott_analysis:
         return None
-    wave_points = elliott_analysis.get('wave_points', [])
-    if not wave_points:
-        return None
-
-    labels = [str(wp.get('label', f"点{i}")) for i, wp in enumerate(wave_points)]
-    prices = []
-    for wp in wave_points:
-        pr = wp.get('price')
-        if isinstance(pr, (int, float)):
-            prices.append(pr)
-        else:
-            prices.append(None)
-    if len([p for p in prices if p is not None]) < 2:
+    monthly = [m for m in (elliott_analysis.get('monthly_series') or [])
+               if isinstance(m, dict) and isinstance(m.get('close'), (int, float)) and m.get('date')]
+    wave_points = [w for w in (elliott_analysis.get('wave_points') or [])
+                   if isinstance(w, dict) and isinstance(w.get('price'), (int, float)) and w.get('date')]
+    if not monthly and not wave_points:
         return None
 
     fib_items = [(k, v) for k, v in (elliott_analysis.get('fib_levels') or {}).items() if isinstance(v, (int, float))]
@@ -433,9 +425,9 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
     current = elliott_analysis.get('current_price')
 
     data = {
-        'title': f"{stock_name} ({stock_code}) 波浪结构",
-        'labels': labels,
-        'prices': prices,
+        'title': f"{stock_name} ({stock_code}) 月线波浪结构",
+        'monthly': monthly,
+        'wave_points': wave_points,
         'fib': fib_items,
         'supports': supports,
         'resistances': resistances,
@@ -455,6 +447,7 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
 <script>
 const data = {data_json};
 const chart = echarts.init(document.getElementById('chart'));
+const T = function(d) {{ return new Date(d).getTime(); }};
 
 const markLines = [];
 data.fib.forEach(function(it) {{
@@ -471,25 +464,46 @@ if (data.current != null) {{
 }}
 
 const option = {{
-    title: {{text: data.title, left: 'center'}},
-    tooltip: {{trigger: 'axis', formatter: function(p) {{
-        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
-    }}}},
-    grid: {{left: 80, right: 60, top: 60, bottom: 60}},
-    xAxis: {{type: 'category', data: data.labels, name: '波浪结构', axisLabel: {{rotate: 30}}}},
+    title: {{text: data.title, left: 'center', subtext: '月线收盘价曲线 + 波浪转折点标注'}},
+    tooltip: {{
+        trigger: 'axis',
+        axisPointer: {{type: 'cross'}},
+        formatter: function(params) {{
+            const lines = [];
+            params.forEach(function(p) {{
+                if (p.seriesType === 'line' && p.value && p.value.length) {{
+                    const dt = new Date(p.value[0]);
+                    lines.push(dt.toISOString().slice(0,10) + ' 收盘: ' + p.value[1].toFixed(2));
+                }}
+                if (p.seriesType === 'scatter' && p.value) {{
+                    lines.push(p.name + ' @ ' + p.value[1].toFixed(2));
+                }}
+            }});
+            return lines.join('<br/>');
+        }}
+    }},
+    legend: {{data: ['月线收盘', '波浪转折点'], top: 30}},
+    grid: {{left: 70, right: 50, top: 90, bottom: 50}},
+    xAxis: {{type: 'time', name: '日期'}},
     yAxis: {{type: 'value', name: '价格', scale: true}},
-    series: [{{
-        type: 'line',
-        data: data.prices,
-        connectNulls: false,
-        smooth: false,
-        symbol: 'circle',
-        symbolSize: 8,
-        lineStyle: {{color: '#1e88e5', width: 2.5}},
-        itemStyle: {{color: '#1e88e5'}},
-        label: {{show: true, position: 'top', formatter: function(p) {{ return p.value != null ? p.value.toFixed(2) : ''; }}}},
-        markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
-    }}]
+    series: [
+        {{
+            name: '月线收盘',
+            type: 'line',
+            data: data.monthly.map(function(m) {{ return [T(m.date), m.close]; }}),
+            showSymbol: false,
+            lineStyle: {{color: '#90a4ae', width: 1.5}},
+            markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
+        }},
+        {{
+            name: '波浪转折点',
+            type: 'scatter',
+            data: data.wave_points.map(function(w) {{ return {{name: w.label, value: [T(w.date), w.price]}}; }}),
+            symbolSize: 14,
+            itemStyle: {{color: function(p) {{ return p.name.indexOf('浪') >= 0 ? '#1e88e5' : '#6a1b9a'; }}}},
+            label: {{show: true, position: 'top', formatter: function(p) {{ return p.name; }}, fontSize: 12, color: '#333'}},
+        }}
+    ]
 }};
 chart.setOption(option);
 window.addEventListener('resize', function() {{ chart.resize(); }});
