@@ -451,32 +451,34 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
 <meta charset="utf-8">
 <title>{title}</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>body{{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;}} .panel{{width:100vw;height:48vh;}}</style>
+<style>body{{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;}} h2{{text-align:center;margin:8px 0 4px;font-size:16px;}} .panel{{width:100vw;height:44vh;}}</style>
 </head>
 <body>
+<h2>{title}</h2>
 <div id="chartM" class="panel"></div>
 <div id="chartW" class="panel"></div>
 <script>
 const data = {data_json};
 const T = function(d) {{ return new Date(d).getTime(); }};
 
-const markLines = [];
+const fibLines = [];
 data.fib.forEach(function(it) {{
-    markLines.push({{yAxis: it[1], name: 'Fib ' + it[0], lineStyle: {{type: 'dashed', color: '#999999'}}, label: {{formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideEndTop'}}}});
+    fibLines.push({{yAxis: it[1], lineStyle: {{type: 'dashed', color: '#999999'}}, label: {{formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideStartTop', fontSize: 9, color: '#666'}}}});
 }});
+const srLines = [];
 data.supports.forEach(function(v) {{
-    markLines.push({{yAxis: v, name: '支撑', lineStyle: {{color: '#2e7d32'}}, label: {{formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop'}}}});
+    srLines.push({{yAxis: v, lineStyle: {{color: '#2e7d32'}}, label: {{formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#2e7d32'}}}});
 }});
 data.resistances.forEach(function(v) {{
-    markLines.push({{yAxis: v, name: '阻力', lineStyle: {{color: '#c62828'}}, label: {{formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop'}}}});
+    srLines.push({{yAxis: v, lineStyle: {{color: '#c62828'}}, label: {{formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#c62828'}}}});
 }});
 if (data.current != null) {{
-    markLines.push({{yAxis: data.current, name: '现价', lineStyle: {{color: '#ef6c00'}}, label: {{formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}}}});
+    srLines.push({{yAxis: data.current, lineStyle: {{color: '#ef6c00'}}, label: {{formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#ef6c00'}}}});
 }}
 
-function buildOption(title, series, wavePts) {{
+function buildOption(subtitle, series, wavePts) {{
     return {{
-        title: {{text: title, left: 'center', textStyle: {{fontSize: 15, fontWeight: 'bold'}}}},
+        title: {{text: subtitle, left: 'center', textStyle: {{fontSize: 13, color: '#555'}}}},
         tooltip: {{
             trigger: 'axis',
             axisPointer: {{type: 'cross'}},
@@ -493,10 +495,14 @@ function buildOption(title, series, wavePts) {{
                 return lines.join('<br/>');
             }}
         }},
-        legend: {{data: ['收盘', '波浪转折点'], top: 26}},
-        grid: {{left: 60, right: 40, top: 60, bottom: 35}},
+        legend: {{data: ['收盘', '波浪转折点'], top: 22}},
+        grid: {{left: 60, right: 50, top: 52, bottom: 48}},
         xAxis: {{type: 'time'}},
         yAxis: {{type: 'value', scale: true}},
+        dataZoom: [
+            {{type: 'inside', xAxisIndex: 0}},
+            {{type: 'slider', xAxisIndex: 0, bottom: 4, height: 16}},
+        ],
         series: [
             {{
                 name: '收盘',
@@ -504,24 +510,25 @@ function buildOption(title, series, wavePts) {{
                 data: series.map(function(m) {{ return [T(m.date), m.close]; }}),
                 showSymbol: false,
                 lineStyle: {{color: '#90a4ae', width: 1.5}},
-                markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
+                markLine: {{symbol: 'none', data: fibLines.concat(srLines), label: {{position: 'insideEndTop'}}}},
             }},
             {{
                 name: '波浪转折点',
                 type: 'scatter',
                 data: wavePts.map(function(w) {{ return {{name: w.label, value: [T(w.date), w.price]}}; }}),
-                symbolSize: 13,
+                symbolSize: 10,
                 itemStyle: {{color: '#1e88e5'}},
-                label: {{show: true, position: 'top', formatter: function(p) {{ return p.name; }}, fontSize: 11, color: '#333'}},
+                label: {{show: true, position: 'top', formatter: function(p) {{ return p.name; }}, fontSize: 10, color: '#333'}},
+                labelLayout: {{hideOverlap: true}},
             }}
         ]
     }};
 }}
 
 const chartM = echarts.init(document.getElementById('chartM'));
-chartM.setOption(buildOption('月线波浪结构（大级别趋势）', data.monthly, data.monthly_wave));
+chartM.setOption(buildOption('月线（大级别趋势）', data.monthly, data.monthly_wave));
 const chartW = echarts.init(document.getElementById('chartW'));
-chartW.setOption(buildOption('周线波浪结构（中长期趋势）', data.weekly, data.weekly_wave));
+chartW.setOption(buildOption('周线（中长期趋势）', data.weekly, data.weekly_wave));
 window.addEventListener('resize', function() {{ chartM.resize(); chartW.resize(); }});
 </script>
 </body>

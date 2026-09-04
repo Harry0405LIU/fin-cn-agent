@@ -4,32 +4,34 @@
 <meta charset="utf-8">
 <title>老铺黄金 (06181.HK) 波浪结构</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;} .panel{width:100vw;height:48vh;}</style>
+<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;} h2{text-align:center;margin:8px 0 4px;font-size:16px;} .panel{width:100vw;height:44vh;}</style>
 </head>
 <body>
+<h2>老铺黄金 (06181.HK) 波浪结构</h2>
 <div id="chartM" class="panel"></div>
 <div id="chartW" class="panel"></div>
 <script>
 const data = {"title": "老铺黄金 (06181.HK) 波浪结构", "monthly": [{"date": "2024-06-30", "close": 66.716}, {"date": "2024-07-31", "close": 78.0577}, {"date": "2024-08-31", "close": 86.5878}, {"date": "2024-09-30", "close": 140.1035}, {"date": "2024-10-31", "close": 205.4852}, {"date": "2024-11-30", "close": 187.8531}, {"date": "2024-12-31", "close": 229.8842}, {"date": "2025-01-31", "close": 396.4835}, {"date": "2025-02-28", "close": 475.3989}, {"date": "2025-03-31", "close": 694.7992}, {"date": "2025-04-30", "close": 685.7449}, {"date": "2025-05-31", "close": 843.0974}, {"date": "2025-06-30", "close": 969.0333}, {"date": "2025-07-31", "close": 681.1112}, {"date": "2025-08-31", "close": 682.5532}, {"date": "2025-09-30", "close": 684.4759}, {"date": "2025-10-31", "close": 658.0389}, {"date": "2025-11-30", "close": 657.007}, {"date": "2025-12-31", "close": 603.7625}, {"date": "2026-01-31", "close": 760.0765}, {"date": "2026-02-28", "close": 706.832}, {"date": "2026-03-31", "close": 611.0897}, {"date": "2026-04-30", "close": 539.283}, {"date": "2026-05-31", "close": 504.0}, {"date": "2026-06-30", "close": 346.4}, {"date": "2026-07-31", "close": 324.8}, {"date": "2026-08-31", "close": 397.8}, {"date": "2026-09-30", "close": 385.8}], "monthly_wave": [], "weekly": [{"date": "2024-06-30", "close": 66.716}, {"date": "2024-07-07", "close": 78.3913}, {"date": "2024-07-14", "close": 81.2029}, {"date": "2024-07-21", "close": 77.6765}, {"date": "2024-07-28", "close": 71.0049}, {"date": "2024-08-04", "close": 77.8671}, {"date": "2024-08-11", "close": 77.6765}, {"date": "2024-08-18", "close": 81.4888}, {"date": "2024-08-25", "close": 88.2557}, {"date": "2024-09-01", "close": 86.5878}, {"date": "2024-09-08", "close": 89.1135}, {"date": "2024-09-15", "close": 108.0799}, {"date": "2024-09-22", "close": 114.3702}, {"date": "2024-09-29", "close": 143.5346}, {"date": "2024-10-06", "close": 166.7899}, {"date": "2024-10-13", "close": 166.5993}, {"date": "2024-10-20", "close": 158.4981}, {"date": "2024-10-27", "close": 181.5627}, {"date": "2024-11-03", "close": 199.0042}, {"date": "2024-11-10", "close": 198.4324}, {"date": "2024-11-17", "close": 176.702}, {"date": "2024-11-24", "close": 194.2388}, {"date": "2024-12-01", "close": 187.8531}, {"date": "2024-12-08", "close": 184.3267}, {"date": "2024-12-15", "close": 225.5}, {"date": "2024-12-22", "close": 198.2417}, {"date": "2024-12-29", "close": 201.8635}, {"date": "2025-01-05", "close": 259.2392}, {"date": "2025-01-12", "close": 274.8698}, {"date": "2025-01-19", "close": 273.9167}, {"date": "2025-01-26", "close": 350.3542}, {"date": "2025-02-02", "close": 396.4835}, {"date": "2025-02-09", "close": 409.4454}, {"date": "2025-02-16", "close": 469.871}, {"date": "2025-02-23", "close": 522.7673}, {"date": "2025-03-02", "close": 475.3989}, {"date": "2025-03-09", "close": 592.819}, {"date": "2025-03-16", "close": 650.0042}, {"date": "2025-03-23", "close": 670.972}, {"date": "2025-03-30", "close": 683.3622}, {"date": "2025-04-06", "close": 762.4682}, {"date": "2025-04-13", "close": 708.1424}, {"date": "2025-04-20", "close": 740.5473}, {"date": "2025-04-27", "close": 669.0659}, {"date": "2025-05-04", "close": 696.2288}, {"date": "2025-05-11", "close": 666.2066}, {"date": "2025-05-18", "close": 644.2857}, {"date": "2025-05-25", "close": 794.5496}, {"date": "2025-06-01", "close": 843.0974}, {"date": "2025-06-08", "close": 868.0923}, {"date": "2025-06-15", "close": 911.8334}, {"date": "2025-06-22", "close": 790.2235}, {"date": "2025-06-29", "close": 843.0974}, {"date": "2025-07-06", "close": 956.5358}, {"date": "2025-07-13", "close": 865.2083}, {"date": "2025-07-20", "close": 819.5445}, {"date": "2025-07-27", "close": 734.9463}, {"date": "2025-08-03", "close": 663.3263}, {"date": "2025-08-10", "close": 771.4774}, {"date": "2025-08-17", "close": 749.8472}, {"date": "2025-08-24", "close": 700.338}, {"date": "2025-08-31", "close": 682.5532}, {"date": "2025-09-07", "close": 737.8304}, {"date": "2025-09-14", "close": 700.338}, {"date": "2025-09-21", "close": 708.0288}, {"date": "2025-09-28", "close": 666.691}, {"date": "2025-10-05", "close": 661.4036}, {"date": "2025-10-12", "close": 674.8624}, {"date": "2025-10-19", "close": 796.4723}, {"date": "2025-10-26", "close": 667.1717}, {"date": "2025-11-02", "close": 658.0389}, {"date": "2025-11-09", "close": 586.4189}, {"date": "2025-11-16", "close": 637.8508}, {"date": "2025-11-23", "close": 618.9054}, {"date": "2025-11-30", "close": 657.007}, {"date": "2025-12-07", "close": 661.8918}, {"date": "2025-12-14", "close": 647.2373}, {"date": "2025-12-21", "close": 642.841}, {"date": "2025-12-28", "close": 658.9609}, {"date": "2026-01-04", "close": 607.6704}, {"date": "2026-01-11", "close": 643.818}, {"date": "2026-01-18", "close": 638.9332}, {"date": "2026-01-25", "close": 769.8461}, {"date": "2026-02-01", "close": 760.0765}, {"date": "2026-02-08", "close": 707.809}, {"date": "2026-02-15", "close": 721.4865}, {"date": "2026-02-22", "close": 751.7723}, {"date": "2026-03-01", "close": 706.832}, {"date": "2026-03-08", "close": 646.7489}, {"date": "2026-03-15", "close": 633.5599}, {"date": "2026-03-22", "close": 596.9238}, {"date": "2026-03-29", "close": 602.7856}, {"date": "2026-04-05", "close": 623.3018}, {"date": "2026-04-12", "close": 638.9332}, {"date": "2026-04-19", "close": 617.44}, {"date": "2026-04-26", "close": 566.1495}, {"date": "2026-05-03", "close": 539.283}, {"date": "2026-05-10", "close": 578.85}, {"date": "2026-05-17", "close": 567.5}, {"date": "2026-05-24", "close": 505.5}, {"date": "2026-05-31", "close": 504.0}, {"date": "2026-06-07", "close": 500.0}, {"date": "2026-06-14", "close": 470.0}, {"date": "2026-06-21", "close": 458.4}, {"date": "2026-06-28", "close": 371.0}, {"date": "2026-07-05", "close": 382.2}, {"date": "2026-07-12", "close": 391.2}, {"date": "2026-07-19", "close": 350.0}, {"date": "2026-07-26", "close": 375.2}, {"date": "2026-08-02", "close": 324.8}, {"date": "2026-08-09", "close": 352.0}, {"date": "2026-08-16", "close": 333.6}, {"date": "2026-08-23", "close": 397.8}, {"date": "2026-08-30", "close": 409.6}, {"date": "2026-09-06", "close": 385.8}], "weekly_wave": [{"label": "前高", "date": "2024-07-07", "price": 85.3011, "type": "HIGH"}, {"label": "起点", "date": "2024-07-28", "price": 68.6221, "type": "LOW"}, {"label": "浪1顶", "date": "2024-08-04", "price": 83.8715, "type": "HIGH"}, {"label": "浪2底", "date": "2024-08-11", "price": 72.8157, "type": "LOW"}, {"label": "浪3顶", "date": "2024-10-13", "price": 172.985, "type": "HIGH"}, {"label": "浪4底", "date": "2024-10-20", "price": 133.4319, "type": "LOW"}, {"label": "浪5顶", "date": "2024-11-10", "price": 221.3064, "type": "HIGH", "detail": {"sub_wave_warning": true, "gain_pct": 222.5, "note": "单浪涨幅222.5%>50%，可能内含子浪未细分"}}, {"label": "调整A浪底", "date": "2024-11-17", "price": 172.2225, "type": "LOW"}, {"label": "调整B浪顶", "date": "2024-11-24", "price": 203.7696, "type": "HIGH"}, {"label": "调整C浪底", "date": "2024-12-01", "price": 176.3208, "type": "LOW"}, {"label": "新起点", "date": "2024-12-01", "price": 176.3208, "type": "LOW"}, {"label": "新1顶", "date": "2024-12-22", "price": 238.0807, "type": "HIGH"}, {"label": "新2底", "date": "2024-12-29", "price": 192.142, "type": "LOW"}, {"label": "新3顶", "date": "2025-02-23", "price": 539.4463, "type": "HIGH"}, {"label": "新4底", "date": "2025-03-02", "price": 464.1525, "type": "LOW"}, {"label": "新5顶", "date": "2025-03-16", "price": 760.5621, "type": "HIGH"}, {"label": "新A浪底", "date": "2025-03-30", "price": 587.5771, "type": "LOW"}, {"label": "新B浪顶", "date": "2025-04-06", "price": 839.6681, "type": "HIGH"}, {"label": "新C浪底", "date": "2025-04-13", "price": 597.1079, "type": "LOW"}, {"label": "续1顶", "date": "2025-04-20", "price": 819.1768, "type": "HIGH"}, {"label": "续2底", "date": "2025-05-04", "price": 634.7548, "type": "LOW"}, {"label": "续3顶", "date": "2025-05-11", "price": 727.2041, "type": "HIGH"}, {"label": "续4底", "date": "2025-05-18", "price": 605.2092, "type": "LOW"}, {"label": "续5顶", "date": "2025-06-08", "price": 975.7626, "type": "HIGH"}, {"label": "续A浪底", "date": "2025-06-22", "price": 770.9967, "type": "LOW"}, {"label": "续B浪顶", "date": "2025-07-13", "price": 1065.1675, "type": "HIGH"}, {"label": "续C浪底", "date": "2025-08-03", "price": 644.0995, "type": "LOW"}], "fib": [["0%", 1065.1675], ["23.6%", 827.497328], ["38.2%", 680.464086], ["50%", 561.629], ["61.8%", 442.793914], ["78.6%", 273.60497799999996], ["100%", 58.0905]], "supports": [], "resistances": [], "current": 385.8};
 const T = function(d) { return new Date(d).getTime(); };
 
-const markLines = [];
+const fibLines = [];
 data.fib.forEach(function(it) {
-    markLines.push({yAxis: it[1], name: 'Fib ' + it[0], lineStyle: {type: 'dashed', color: '#999999'}, label: {formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideEndTop'}});
+    fibLines.push({yAxis: it[1], lineStyle: {type: 'dashed', color: '#999999'}, label: {formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideStartTop', fontSize: 9, color: '#666'}});
 });
+const srLines = [];
 data.supports.forEach(function(v) {
-    markLines.push({yAxis: v, name: '支撑', lineStyle: {color: '#2e7d32'}, label: {formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop'}});
+    srLines.push({yAxis: v, lineStyle: {color: '#2e7d32'}, label: {formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#2e7d32'}});
 });
 data.resistances.forEach(function(v) {
-    markLines.push({yAxis: v, name: '阻力', lineStyle: {color: '#c62828'}, label: {formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop'}});
+    srLines.push({yAxis: v, lineStyle: {color: '#c62828'}, label: {formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#c62828'}});
 });
 if (data.current != null) {
-    markLines.push({yAxis: data.current, name: '现价', lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}});
+    srLines.push({yAxis: data.current, lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop', fontSize: 9, color: '#ef6c00'}});
 }
 
-function buildOption(title, series, wavePts) {
+function buildOption(subtitle, series, wavePts) {
     return {
-        title: {text: title, left: 'center', textStyle: {fontSize: 15, fontWeight: 'bold'}},
+        title: {text: subtitle, left: 'center', textStyle: {fontSize: 13, color: '#555'}},
         tooltip: {
             trigger: 'axis',
             axisPointer: {type: 'cross'},
@@ -46,10 +48,14 @@ function buildOption(title, series, wavePts) {
                 return lines.join('<br/>');
             }
         },
-        legend: {data: ['收盘', '波浪转折点'], top: 26},
-        grid: {left: 60, right: 40, top: 60, bottom: 35},
+        legend: {data: ['收盘', '波浪转折点'], top: 22},
+        grid: {left: 60, right: 50, top: 52, bottom: 48},
         xAxis: {type: 'time'},
         yAxis: {type: 'value', scale: true},
+        dataZoom: [
+            {type: 'inside', xAxisIndex: 0},
+            {type: 'slider', xAxisIndex: 0, bottom: 4, height: 16},
+        ],
         series: [
             {
                 name: '收盘',
@@ -57,24 +63,25 @@ function buildOption(title, series, wavePts) {
                 data: series.map(function(m) { return [T(m.date), m.close]; }),
                 showSymbol: false,
                 lineStyle: {color: '#90a4ae', width: 1.5},
-                markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
+                markLine: {symbol: 'none', data: fibLines.concat(srLines), label: {position: 'insideEndTop'}},
             },
             {
                 name: '波浪转折点',
                 type: 'scatter',
                 data: wavePts.map(function(w) { return {name: w.label, value: [T(w.date), w.price]}; }),
-                symbolSize: 13,
+                symbolSize: 10,
                 itemStyle: {color: '#1e88e5'},
-                label: {show: true, position: 'top', formatter: function(p) { return p.name; }, fontSize: 11, color: '#333'},
+                label: {show: true, position: 'top', formatter: function(p) { return p.name; }, fontSize: 10, color: '#333'},
+                labelLayout: {hideOverlap: true},
             }
         ]
     };
 }
 
 const chartM = echarts.init(document.getElementById('chartM'));
-chartM.setOption(buildOption('月线波浪结构（大级别趋势）', data.monthly, data.monthly_wave));
+chartM.setOption(buildOption('月线（大级别趋势）', data.monthly, data.monthly_wave));
 const chartW = echarts.init(document.getElementById('chartW'));
-chartW.setOption(buildOption('周线波浪结构（中长期趋势）', data.weekly, data.weekly_wave));
+chartW.setOption(buildOption('周线（中长期趋势）', data.weekly, data.weekly_wave));
 window.addEventListener('resize', function() { chartM.resize(); chartW.resize(); });
 </script>
 </body>
