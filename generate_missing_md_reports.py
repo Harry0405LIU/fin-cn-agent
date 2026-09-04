@@ -404,6 +404,113 @@ def _render_elliott_detail(elliott_analysis):
     return lines
 
 
+def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis) -> str:
+    """生成个股波浪分析的自包含 HTML 图表（ECharts）。
+
+    可视化：波浪结构折线 + 斐波那契回撤位 + 支撑/阻力/现价水平线。
+    """
+    if not isinstance(elliott_analysis, dict) or 'error' in elliott_analysis:
+        return None
+    wave_points = elliott_analysis.get('wave_points', [])
+    if not wave_points:
+        return None
+
+    labels = [str(wp.get('label', f"点{i}")) for i, wp in enumerate(wave_points)]
+    prices = []
+    for wp in wave_points:
+        pr = wp.get('price')
+        if isinstance(pr, (int, float)):
+            prices.append(pr)
+        else:
+            prices.append(None)
+    if len([p for p in prices if p is not None]) < 2:
+        return None
+
+    fib_items = [(k, v) for k, v in (elliott_analysis.get('fib_levels') or {}).items() if isinstance(v, (int, float))]
+    scenarios = elliott_analysis.get('scenarios', [])
+    supports = sorted(set(s.get('key_support') for s in scenarios if isinstance(s.get('key_support'), (int, float))))
+    resistances = sorted(set(s.get('key_resistance') for s in scenarios if isinstance(s.get('key_resistance'), (int, float))))
+    current = elliott_analysis.get('current_price')
+
+    data = {
+        'title': f"{stock_name} ({stock_code}) 波浪结构",
+        'labels': labels,
+        'prices': prices,
+        'fib': fib_items,
+        'supports': supports,
+        'resistances': resistances,
+        'current': current,
+    }
+
+    return '''<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>{title}</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>body{{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;}} #chart{{width:100vw;height:100vh;}}</style>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+const data = {data_json};
+const chart = echarts.init(document.getElementById('chart'));
+
+const markLines = [];
+data.fib.forEach(function(it) {{
+    markLines.push({{yAxis: it[1], name: 'Fib ' + it[0], lineStyle: {{type: 'dashed', color: '#999999'}}, label: {{formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideEndTop'}}}});
+}});
+data.supports.forEach(function(v) {{
+    markLines.push({{yAxis: v, name: '支撑', lineStyle: {{color: '#2e7d32'}}, label: {{formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop'}}}});
+}});
+data.resistances.forEach(function(v) {{
+    markLines.push({{yAxis: v, name: '阻力', lineStyle: {{color: '#c62828'}}, label: {{formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop'}}}});
+}});
+if (data.current != null) {{
+    markLines.push({{yAxis: data.current, name: '现价', lineStyle: {{color: '#ef6c00'}}, label: {{formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}}}});
+}}
+
+const option = {{
+    title: {{text: data.title, left: 'center'}},
+    tooltip: {{trigger: 'axis', formatter: function(p) {{
+        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
+    }}}},
+    grid: {{left: 80, right: 60, top: 60, bottom: 60}},
+    xAxis: {{type: 'category', data: data.labels, name: '波浪结构', axisLabel: {{rotate: 30}}}},
+    yAxis: {{type: 'value', name: '价格', scale: true}},
+    series: [{{
+        type: 'line',
+        data: data.prices,
+        connectNulls: false,
+        smooth: false,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: {{color: '#1e88e5', width: 2.5}},
+        itemStyle: {{color: '#1e88e5'}},
+        label: {{show: true, position: 'top', formatter: function(p) {{ return p.value != null ? p.value.toFixed(2) : ''; }}}},
+        markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
+    }}]
+}};
+chart.setOption(option);
+window.addEventListener('resize', function() {{ chart.resize(); }});
+</script>
+</body>
+</html>'''.format(title=data['title'], data_json=json.dumps(data, ensure_ascii=False))
+
+
+def _save_wave_chart(stock_name: str, stock_code: str, elliott_analysis, out_dir: Path) -> str:
+    """保存个股波浪分析 HTML 图表，返回相对链接路径。"""
+    html = _generate_wave_chart_html(stock_name, stock_code, elliott_analysis)
+    if html is None:
+        return None
+    chart_dir = out_dir / "波浪图"
+    chart_dir.mkdir(parents=True, exist_ok=True)
+    safe_code = stock_code.replace('.', '_')
+    chart_file = chart_dir / f"{safe_code}.html"
+    chart_file.write_text(html, encoding='utf-8')
+    return f"波浪图/{safe_code}.html"
+
+
 def generate_md_report(json_file: Path):
     """从JSON文件生成MD报告"""
     with open(json_file, 'r', encoding='utf-8') as f:
@@ -956,6 +1063,12 @@ def generate_md_report(json_file: Path):
 
             # 波浪分析详情（对标指数波浪分析报告的完整结构）
             md_lines.extend(_render_elliott_detail(elliott_analysis))
+
+            # 波浪分析可视化 HTML 图 + 链接
+            chart_link = _save_wave_chart(name, code, elliott_analysis, json_file.parent)
+            if chart_link:
+                md_lines.append(f"- 📈 [查看波浪结构图]({chart_link})")
+                md_lines.append("")
 
             # 价值评分详情（原三维评分）
             if 'dimension_bull_bear_score' in bb_analysis:
