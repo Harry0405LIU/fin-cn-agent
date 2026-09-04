@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>海康威视 (002415.SZ) 波浪结构</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;} #chart{width:100vw;height:100vh;}</style>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+const data = {"title": "海康威视 (002415.SZ) 波浪结构", "labels": ["前低", "起点", "浪1底", "浪2顶", "浪3底", "浪4顶", "浪5底", "调整A浪顶", "调整B浪底", "调整C浪顶", "续1底", "续2顶", "续3底", "续4顶", "续5底", "续A浪顶", "续B浪底", "续C浪顶", "联合调整X浪底", "联合调整Y浪顶", "联合调整Y浪底", "联合调整Z浪顶", "续1顶", "续2底", "续3顶", "续4底", "续5顶"], "prices": [22.29, 70.48, 49.67, 70.44, 49.69, 58.45, 26.8, 48.84, 31.21, 37.65, 24.71, 35.52, 27.51, 34.07, 27.02, 34.78, 28.61, 37.09, 26.8, 48.84, 31.21, 37.65, 34.78, 28.61, 37.09, 29.76, 39.18], "fib": [["0%", 70.48], ["23.6%", 59.10716000000001], ["38.2%", 52.07142], ["50%", 46.385000000000005], ["61.8%", 40.69858], ["78.6%", 32.60266], ["100%", 22.29]], "supports": [32.6], "resistances": [35.5], "current": 34.98};
+const chart = echarts.init(document.getElementById('chart'));
+
+const markLines = [];
+data.fib.forEach(function(it) {
+    markLines.push({yAxis: it[1], name: 'Fib ' + it[0], lineStyle: {type: 'dashed', color: '#999999'}, label: {formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideEndTop'}});
+});
+data.supports.forEach(function(v) {
+    markLines.push({yAxis: v, name: '支撑', lineStyle: {color: '#2e7d32'}, label: {formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop'}});
+});
+data.resistances.forEach(function(v) {
+    markLines.push({yAxis: v, name: '阻力', lineStyle: {color: '#c62828'}, label: {formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop'}});
+});
+if (data.current != null) {
+    markLines.push({yAxis: data.current, name: '现价', lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}});
+}
+
+const option = {
+    title: {text: data.title, left: 'center'},
+    tooltip: {trigger: 'axis', formatter: function(p) {
+        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
+    }},
+    grid: {left: 80, right: 60, top: 60, bottom: 60},
+    xAxis: {type: 'category', data: data.labels, name: '波浪结构', axisLabel: {rotate: 30}},
+    yAxis: {type: 'value', name: '价格', scale: true},
+    series: [{
+        type: 'line',
+        data: data.prices,
+        connectNulls: false,
+        smooth: false,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: {color: '#1e88e5', width: 2.5},
+        itemStyle: {color: '#1e88e5'},
+        label: {show: true, position: 'top', formatter: function(p) { return p.value != null ? p.value.toFixed(2) : ''; }},
+        markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
+    }]
+};
+chart.setOption(option);
+window.addEventListener('resize', function() { chart.resize(); });
+</script>
+</body>
+</html>

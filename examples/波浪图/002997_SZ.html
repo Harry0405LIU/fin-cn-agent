@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>瑞鹄模具 (002997.SZ) 波浪结构</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;} #chart{width:100vw;height:100vh;}</style>
+</head>
+<body>
+<div id="chart"></div>
+<script>
+const data = {"title": "瑞鹄模具 (002997.SZ) 波浪结构", "labels": ["前高", "A起点", "A浪顶", "B浪底", "C浪顶"], "prices": [49.95, 10.88, 36.63, 20.69, 32.36], "fib": [["0%", 49.95], ["23.6%", 40.72948], ["38.2%", 35.02526], ["50%", 30.415000000000003], ["61.8%", 25.804740000000002], ["78.6%", 19.24098], ["100%", 10.88]], "supports": [25.8], "resistances": [30.4], "current": 28.78};
+const chart = echarts.init(document.getElementById('chart'));
+
+const markLines = [];
+data.fib.forEach(function(it) {
+    markLines.push({yAxis: it[1], name: 'Fib ' + it[0], lineStyle: {type: 'dashed', color: '#999999'}, label: {formatter: it[0] + ' ' + it[1].toFixed(2), position: 'insideEndTop'}});
+});
+data.supports.forEach(function(v) {
+    markLines.push({yAxis: v, name: '支撑', lineStyle: {color: '#2e7d32'}, label: {formatter: '支撑 ' + v.toFixed(2), position: 'insideEndTop'}});
+});
+data.resistances.forEach(function(v) {
+    markLines.push({yAxis: v, name: '阻力', lineStyle: {color: '#c62828'}, label: {formatter: '阻力 ' + v.toFixed(2), position: 'insideEndTop'}});
+});
+if (data.current != null) {
+    markLines.push({yAxis: data.current, name: '现价', lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}});
+}
+
+const option = {
+    title: {text: data.title, left: 'center'},
+    tooltip: {trigger: 'axis', formatter: function(p) {
+        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
+    }},
+    grid: {left: 80, right: 60, top: 60, bottom: 60},
+    xAxis: {type: 'category', data: data.labels, name: '波浪结构', axisLabel: {rotate: 30}},
+    yAxis: {type: 'value', name: '价格', scale: true},
+    series: [{
+        type: 'line',
+        data: data.prices,
+        connectNulls: false,
+        smooth: false,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: {color: '#1e88e5', width: 2.5},
+        itemStyle: {color: '#1e88e5'},
+        label: {show: true, position: 'top', formatter: function(p) { return p.value != null ? p.value.toFixed(2) : ''; }},
+        markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
+    }]
+};
+chart.setOption(option);
+window.addEventListener('resize', function() { chart.resize(); });
+</script>
+</body>
+</html>
