@@ -1623,14 +1623,14 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
         )
 
         # 月线收盘价序列（用于波浪可视化：完整价格曲线 + 波浪转折点叠加）
+        # 注意：resample_to_monthly 之后日期在 index，不在 'date' 列
         monthly_series = []
         try:
             if analyzer.monthly_df is not None and len(analyzer.monthly_df) > 0:
-                mdf = analyzer.monthly_df.copy()
-                mdf['date'] = pd.to_datetime(mdf['date'])
+                mdf = analyzer.monthly_df
                 monthly_series = [
                     {'date': str(d)[:10], 'close': float(c) if pd.notna(c) else None}
-                    for d, c in zip(mdf['date'], mdf['close'])
+                    for d, c in zip(mdf.index, mdf['close'])
                 ]
         except Exception:
             monthly_series = []
@@ -1640,13 +1640,12 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
         weekly_wave_points = []
         try:
             if analyzer.weekly_df is not None and len(analyzer.weekly_df) > 0:
-                wdf = analyzer.weekly_df.copy()
-                wdf['date'] = pd.to_datetime(wdf['date'])
+                wdf = analyzer.weekly_df
                 weekly_series = [
                     {'date': str(d)[:10], 'close': float(c) if pd.notna(c) else None}
-                    for d, c in zip(wdf['date'], wdf['close'])
+                    for d, c in zip(wdf.index, wdf['close'])
                 ]
-            weekly_wave_result = weekly.get('wave_result') or {} if weekly else {}
+            weekly_wave_result = (weekly.get('wave_result') if weekly else None) or {}
             weekly_wave_points = weekly_wave_result.get('wave_points', []) or []
         except Exception:
             weekly_series = []
