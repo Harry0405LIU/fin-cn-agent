@@ -48,7 +48,7 @@ function buildOption(subtitle, series, wavePts) {
                 return lines.join('<br/>');
             }
         },
-        legend: {data: ['收盘', '波浪转折点'], top: 22},
+        legend: {data: ['收盘价', '波浪结构', '波浪转折点'], top: 22},
         grid: {left: 60, right: 50, top: 52, bottom: 48},
         xAxis: {type: 'time'},
         yAxis: {type: 'value', scale: true},
@@ -58,12 +58,20 @@ function buildOption(subtitle, series, wavePts) {
         ],
         series: [
             {
-                name: '收盘',
+                name: '收盘价',
                 type: 'line',
                 data: series.map(function(m) { return [T(m.date), m.close]; }),
                 showSymbol: false,
-                lineStyle: {color: '#90a4ae', width: 1.5},
+                lineStyle: {color: '#90a4ae', width: 1.2},
                 markLine: {symbol: 'none', data: fibLines.concat(srLines), label: {position: 'insideEndTop'}},
+            },
+            {
+                name: '波浪结构',
+                type: 'line',
+                data: wavePts.map(function(w) { return [T(w.date), w.price]; }),
+                showSymbol: false,
+                lineStyle: {color: '#1e88e5', width: 2.2},
+                z: 3,
             },
             {
                 name: '波浪转折点',
@@ -73,6 +81,7 @@ function buildOption(subtitle, series, wavePts) {
                 itemStyle: {color: '#1e88e5'},
                 label: {show: true, position: 'top', formatter: function(p) { return p.name; }, fontSize: 10, color: '#333'},
                 labelLayout: {hideOverlap: true},
+                z: 4,
             }
         ]
     };
