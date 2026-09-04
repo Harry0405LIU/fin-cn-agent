@@ -2,6 +2,8 @@
 
 > 让两个不同人格的 AI 分析师——**巴菲特（空头）** 和 **芒格（多头）**——就一只股票激烈交锋，再综合给出三维评分与买卖点建议，每日自动生成选股报告。
 
+*[中文](README.md) | [English](README.en.md)*
+
 <p align="center">
   <a href="examples/demo_report.md"><b>📊 查看一份真实的每日选股报告样例 →</b></a>
 </p>
