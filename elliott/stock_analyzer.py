@@ -1635,6 +1635,23 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
         except Exception:
             monthly_series = []
 
+        # 周线收盘价序列 + 周线波浪转折点（周线更适合看中长期趋势）
+        weekly_series = []
+        weekly_wave_points = []
+        try:
+            if analyzer.weekly_df is not None and len(analyzer.weekly_df) > 0:
+                wdf = analyzer.weekly_df.copy()
+                wdf['date'] = pd.to_datetime(wdf['date'])
+                weekly_series = [
+                    {'date': str(d)[:10], 'close': float(c) if pd.notna(c) else None}
+                    for d, c in zip(wdf['date'], wdf['close'])
+                ]
+            weekly_wave_result = weekly.get('wave_result') or {} if weekly else {}
+            weekly_wave_points = weekly_wave_result.get('wave_points', []) or []
+        except Exception:
+            weekly_series = []
+            weekly_wave_points = []
+
         return {
             'stock_code': symbol,
             'stock_name': name,
@@ -1685,6 +1702,8 @@ def get_elliott_for_selection(symbol: str, name: str, market: str,
             },
             'wave_points': wave_points,
             'monthly_series': monthly_series,
+            'weekly_series': weekly_series,
+            'weekly_wave_points': weekly_wave_points,
             'validation': validation_signals if validation_signals else None,
             'score_rationale': score_rationale,
             # 增强版额外字段

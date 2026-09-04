@@ -405,17 +405,26 @@ def _render_elliott_detail(elliott_analysis):
 
 
 def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis) -> str:
-    """生成个股波浪分析的自包含 HTML 图表（ECharts）。
+    """生成个股波浪分析的自包含 HTML 图表（ECharts，月线 + 周线双图）。
 
-    可视化：月线收盘价曲线 + 波浪转折点标注 + 斐波那契/支撑/阻力/现价水平线。
+    可视化：月线/周线收盘价曲线 + 波浪转折点标注 + 斐波那契/支撑/阻力/现价水平线。
     """
     if not isinstance(elliott_analysis, dict) or 'error' in elliott_analysis:
         return None
-    monthly = [m for m in (elliott_analysis.get('monthly_series') or [])
-               if isinstance(m, dict) and isinstance(m.get('close'), (int, float)) and m.get('date')]
-    wave_points = [w for w in (elliott_analysis.get('wave_points') or [])
-                   if isinstance(w, dict) and isinstance(w.get('price'), (int, float)) and w.get('date')]
-    if not monthly and not wave_points:
+
+    def _series(series):
+        return [m for m in (series or [])
+                if isinstance(m, dict) and isinstance(m.get('close'), (int, float)) and m.get('date')]
+
+    def _wave_points(points):
+        return [w for w in (points or [])
+                if isinstance(w, dict) and isinstance(w.get('price'), (int, float)) and w.get('date')]
+
+    monthly = _series(elliott_analysis.get('monthly_series'))
+    monthly_wave = _wave_points(elliott_analysis.get('wave_points'))
+    weekly = _series(elliott_analysis.get('weekly_series'))
+    weekly_wave = _wave_points(elliott_analysis.get('weekly_wave_points'))
+    if not (monthly or weekly or monthly_wave or weekly_wave):
         return None
 
     fib_items = [(k, v) for k, v in (elliott_analysis.get('fib_levels') or {}).items() if isinstance(v, (int, float))]
@@ -425,9 +434,11 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
     current = elliott_analysis.get('current_price')
 
     data = {
-        'title': f"{stock_name} ({stock_code}) 月线波浪结构",
+        'title': f"{stock_name} ({stock_code}) 波浪结构",
         'monthly': monthly,
-        'wave_points': wave_points,
+        'monthly_wave': monthly_wave,
+        'weekly': weekly,
+        'weekly_wave': weekly_wave,
         'fib': fib_items,
         'supports': supports,
         'resistances': resistances,
@@ -440,13 +451,13 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
 <meta charset="utf-8">
 <title>{title}</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>body{{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;}} #chart{{width:100vw;height:100vh;}}</style>
+<style>body{{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;}} .panel{{width:100vw;height:48vh;}}</style>
 </head>
 <body>
-<div id="chart"></div>
+<div id="chartM" class="panel"></div>
+<div id="chartW" class="panel"></div>
 <script>
 const data = {data_json};
-const chart = echarts.init(document.getElementById('chart'));
 const T = function(d) {{ return new Date(d).getTime(); }};
 
 const markLines = [];
@@ -463,50 +474,55 @@ if (data.current != null) {{
     markLines.push({{yAxis: data.current, name: '现价', lineStyle: {{color: '#ef6c00'}}, label: {{formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}}}});
 }}
 
-const option = {{
-    title: {{text: data.title, left: 'center', subtext: '月线收盘价曲线 + 波浪转折点标注'}},
-    tooltip: {{
-        trigger: 'axis',
-        axisPointer: {{type: 'cross'}},
-        formatter: function(params) {{
-            const lines = [];
-            params.forEach(function(p) {{
-                if (p.seriesType === 'line' && p.value && p.value.length) {{
-                    const dt = new Date(p.value[0]);
-                    lines.push(dt.toISOString().slice(0,10) + ' 收盘: ' + p.value[1].toFixed(2));
-                }}
-                if (p.seriesType === 'scatter' && p.value) {{
-                    lines.push(p.name + ' @ ' + p.value[1].toFixed(2));
-                }}
-            }});
-            return lines.join('<br/>');
-        }}
-    }},
-    legend: {{data: ['月线收盘', '波浪转折点'], top: 30}},
-    grid: {{left: 70, right: 50, top: 90, bottom: 50}},
-    xAxis: {{type: 'time', name: '日期'}},
-    yAxis: {{type: 'value', name: '价格', scale: true}},
-    series: [
-        {{
-            name: '月线收盘',
-            type: 'line',
-            data: data.monthly.map(function(m) {{ return [T(m.date), m.close]; }}),
-            showSymbol: false,
-            lineStyle: {{color: '#90a4ae', width: 1.5}},
-            markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
+function buildOption(title, series, wavePts) {{
+    return {{
+        title: {{text: title, left: 'center', textStyle: {{fontSize: 15, fontWeight: 'bold'}}}},
+        tooltip: {{
+            trigger: 'axis',
+            axisPointer: {{type: 'cross'}},
+            formatter: function(params) {{
+                const lines = [];
+                params.forEach(function(p) {{
+                    if (p.seriesType === 'line' && p.value && p.value.length) {{
+                        lines.push(new Date(p.value[0]).toISOString().slice(0,10) + ' 收盘: ' + p.value[1].toFixed(2));
+                    }}
+                    if (p.seriesType === 'scatter' && p.value) {{
+                        lines.push(p.name + ' @ ' + p.value[1].toFixed(2));
+                    }}
+                }});
+                return lines.join('<br/>');
+            }}
         }},
-        {{
-            name: '波浪转折点',
-            type: 'scatter',
-            data: data.wave_points.map(function(w) {{ return {{name: w.label, value: [T(w.date), w.price]}}; }}),
-            symbolSize: 14,
-            itemStyle: {{color: function(p) {{ return p.name.indexOf('浪') >= 0 ? '#1e88e5' : '#6a1b9a'; }}}},
-            label: {{show: true, position: 'top', formatter: function(p) {{ return p.name; }}, fontSize: 12, color: '#333'}},
-        }}
-    ]
-}};
-chart.setOption(option);
-window.addEventListener('resize', function() {{ chart.resize(); }});
+        legend: {{data: ['收盘', '波浪转折点'], top: 26}},
+        grid: {{left: 60, right: 40, top: 60, bottom: 35}},
+        xAxis: {{type: 'time'}},
+        yAxis: {{type: 'value', scale: true}},
+        series: [
+            {{
+                name: '收盘',
+                type: 'line',
+                data: series.map(function(m) {{ return [T(m.date), m.close]; }}),
+                showSymbol: false,
+                lineStyle: {{color: '#90a4ae', width: 1.5}},
+                markLine: {{symbol: 'none', data: markLines, label: {{position: 'insideEndTop'}}}},
+            }},
+            {{
+                name: '波浪转折点',
+                type: 'scatter',
+                data: wavePts.map(function(w) {{ return {{name: w.label, value: [T(w.date), w.price]}}; }}),
+                symbolSize: 13,
+                itemStyle: {{color: '#1e88e5'}},
+                label: {{show: true, position: 'top', formatter: function(p) {{ return p.name; }}, fontSize: 11, color: '#333'}},
+            }}
+        ]
+    }};
+}}
+
+const chartM = echarts.init(document.getElementById('chartM'));
+chartM.setOption(buildOption('月线波浪结构（大级别趋势）', data.monthly, data.monthly_wave));
+const chartW = echarts.init(document.getElementById('chartW'));
+chartW.setOption(buildOption('周线波浪结构（中长期趋势）', data.weekly, data.weekly_wave));
+window.addEventListener('resize', function() {{ chartM.resize(); chartW.resize(); }});
 </script>
 </body>
 </html>'''.format(title=data['title'], data_json=json.dumps(data, ensure_ascii=False))
