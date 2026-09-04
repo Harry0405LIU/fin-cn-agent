@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <title>招商银行 (600036.SH) 波浪结构</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;} #chart{width:100vw;height:100vh;}</style>
+<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;} .panel{width:100vw;height:48vh;}</style>
 </head>
 <body>
-<div id="chart"></div>
+<div id="chartM" class="panel"></div>
+<div id="chartW" class="panel"></div>
 <script>
-const data = {"title": "招商银行 (600036.SH) 波浪结构", "labels": ["前低", "起点", "浪1底", "浪2顶", "浪3底", "浪4顶", "浪5底", "调整A浪顶", "调整B浪底", "调整C浪顶", "联合调整X浪底", "联合调整Y浪顶", "联合调整Y浪底", "联合调整Z浪顶"], "prices": [24.38, 58.92, 45.21, 56.23, 35.26, 42.7, 26.3, 42.63, 26.9, 37.0, 29.93, 48.55, 35.28, 41.36], "fib": [["0%", 58.92], ["23.6%", 49.11892], ["38.2%", 43.05554], ["50%", 38.155], ["61.8%", 33.25446], ["78.6%", 26.27742], ["100%", 17.39]], "supports": [38.2], "resistances": [41.4], "current": 41.07};
-const chart = echarts.init(document.getElementById('chart'));
+const data = {"title": "招商银行 (600036.SH) 波浪结构", "monthly": [], "monthly_wave": [{"label": "前低", "date": "2019-01-31", "price": 24.38, "type": "LOW"}, {"label": "起点", "date": "2021-06-30", "price": 58.92, "type": "HIGH"}, {"label": "浪1底", "date": "2021-08-31", "price": 45.21, "type": "LOW"}, {"label": "浪2顶", "date": "2021-10-31", "price": 56.23, "type": "HIGH"}, {"label": "浪3底", "date": "2022-05-31", "price": 35.26, "type": "LOW"}, {"label": "浪4顶", "date": "2022-06-30", "price": 42.7, "type": "HIGH"}, {"label": "浪5底", "date": "2022-10-31", "price": 26.3, "type": "LOW", "detail": {"sub_wave_warning": true, "decline_pct": 55.4, "note": "单浪跌幅55.4%>50%，可能内含子浪未细分"}}, {"label": "调整A浪顶", "date": "2023-01-31", "price": 42.63, "type": "HIGH"}, {"label": "调整B浪底", "date": "2023-12-31", "price": 26.9, "type": "LOW"}, {"label": "调整C浪顶", "date": "2024-05-31", "price": 37.0, "type": "HIGH"}, {"label": "联合调整X浪底", "date": "2024-09-30", "price": 29.93, "type": "LOW"}, {"label": "联合调整Y浪顶", "date": "2025-07-31", "price": 48.55, "type": "HIGH"}, {"label": "联合调整Y浪底", "date": "2026-07-31", "price": 35.28, "type": "LOW"}, {"label": "联合调整Z浪顶", "date": "2026-09-30", "price": 41.36, "type": "HIGH"}], "weekly": [], "weekly_wave": [], "fib": [["0%", 58.92], ["23.6%", 49.11892], ["38.2%", 43.05554], ["50%", 38.155], ["61.8%", 33.25446], ["78.6%", 26.27742], ["100%", 17.39]], "supports": [38.2], "resistances": [41.4], "current": 41.07};
+const T = function(d) { return new Date(d).getTime(); };
 
 const markLines = [];
 data.fib.forEach(function(it) {
@@ -26,29 +27,55 @@ if (data.current != null) {
     markLines.push({yAxis: data.current, name: '现价', lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}});
 }
 
-const option = {
-    title: {text: data.title, left: 'center'},
-    tooltip: {trigger: 'axis', formatter: function(p) {
-        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
-    }},
-    grid: {left: 80, right: 60, top: 60, bottom: 60},
-    xAxis: {type: 'category', data: data.labels, name: '波浪结构', axisLabel: {rotate: 30}},
-    yAxis: {type: 'value', name: '价格', scale: true},
-    series: [{
-        type: 'line',
-        data: data.prices,
-        connectNulls: false,
-        smooth: false,
-        symbol: 'circle',
-        symbolSize: 8,
-        lineStyle: {color: '#1e88e5', width: 2.5},
-        itemStyle: {color: '#1e88e5'},
-        label: {show: true, position: 'top', formatter: function(p) { return p.value != null ? p.value.toFixed(2) : ''; }},
-        markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
-    }]
-};
-chart.setOption(option);
-window.addEventListener('resize', function() { chart.resize(); });
+function buildOption(title, series, wavePts) {
+    return {
+        title: {text: title, left: 'center', textStyle: {fontSize: 15, fontWeight: 'bold'}},
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {type: 'cross'},
+            formatter: function(params) {
+                const lines = [];
+                params.forEach(function(p) {
+                    if (p.seriesType === 'line' && p.value && p.value.length) {
+                        lines.push(new Date(p.value[0]).toISOString().slice(0,10) + ' 收盘: ' + p.value[1].toFixed(2));
+                    }
+                    if (p.seriesType === 'scatter' && p.value) {
+                        lines.push(p.name + ' @ ' + p.value[1].toFixed(2));
+                    }
+                });
+                return lines.join('<br/>');
+            }
+        },
+        legend: {data: ['收盘', '波浪转折点'], top: 26},
+        grid: {left: 60, right: 40, top: 60, bottom: 35},
+        xAxis: {type: 'time'},
+        yAxis: {type: 'value', scale: true},
+        series: [
+            {
+                name: '收盘',
+                type: 'line',
+                data: series.map(function(m) { return [T(m.date), m.close]; }),
+                showSymbol: false,
+                lineStyle: {color: '#90a4ae', width: 1.5},
+                markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
+            },
+            {
+                name: '波浪转折点',
+                type: 'scatter',
+                data: wavePts.map(function(w) { return {name: w.label, value: [T(w.date), w.price]}; }),
+                symbolSize: 13,
+                itemStyle: {color: '#1e88e5'},
+                label: {show: true, position: 'top', formatter: function(p) { return p.name; }, fontSize: 11, color: '#333'},
+            }
+        ]
+    };
+}
+
+const chartM = echarts.init(document.getElementById('chartM'));
+chartM.setOption(buildOption('月线波浪结构（大级别趋势）', data.monthly, data.monthly_wave));
+const chartW = echarts.init(document.getElementById('chartW'));
+chartW.setOption(buildOption('周线波浪结构（中长期趋势）', data.weekly, data.weekly_wave));
+window.addEventListener('resize', function() { chartM.resize(); chartW.resize(); });
 </script>
 </body>
 </html>

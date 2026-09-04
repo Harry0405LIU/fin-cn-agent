@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <title>海康威视 (002415.SZ) 波浪结构</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;} #chart{width:100vw;height:100vh;}</style>
+<style>body{margin:0;font-family:-apple-system,"PingFang SC",sans-serif;background:#fafafa;} .panel{width:100vw;height:48vh;}</style>
 </head>
 <body>
-<div id="chart"></div>
+<div id="chartM" class="panel"></div>
+<div id="chartW" class="panel"></div>
 <script>
-const data = {"title": "海康威视 (002415.SZ) 波浪结构", "labels": ["前低", "起点", "浪1底", "浪2顶", "浪3底", "浪4顶", "浪5底", "调整A浪顶", "调整B浪底", "调整C浪顶", "续1底", "续2顶", "续3底", "续4顶", "续5底", "续A浪顶", "续B浪底", "续C浪顶", "联合调整X浪底", "联合调整Y浪顶", "联合调整Y浪底", "联合调整Z浪顶", "续1顶", "续2底", "续3顶", "续4底", "续5顶"], "prices": [22.29, 70.48, 49.67, 70.44, 49.69, 58.45, 26.8, 48.84, 31.21, 37.65, 24.71, 35.52, 27.51, 34.07, 27.02, 34.78, 28.61, 37.09, 26.8, 48.84, 31.21, 37.65, 34.78, 28.61, 37.09, 29.76, 39.18], "fib": [["0%", 70.48], ["23.6%", 59.10716000000001], ["38.2%", 52.07142], ["50%", 46.385000000000005], ["61.8%", 40.69858], ["78.6%", 32.60266], ["100%", 22.29]], "supports": [32.6], "resistances": [35.5], "current": 34.98};
-const chart = echarts.init(document.getElementById('chart'));
+const data = {"title": "海康威视 (002415.SZ) 波浪结构", "monthly": [], "monthly_wave": [{"label": "前低", "date": "2018-10-31", "price": 22.29, "type": "LOW"}, {"label": "起点", "date": "2021-01-31", "price": 70.48, "type": "HIGH"}, {"label": "浪1底", "date": "2021-03-31", "price": 49.67, "type": "LOW"}, {"label": "浪2顶", "date": "2021-07-31", "price": 70.44, "type": "HIGH"}, {"label": "浪3底", "date": "2021-09-30", "price": 49.69, "type": "LOW"}, {"label": "浪4顶", "date": "2021-10-31", "price": 58.45, "type": "HIGH"}, {"label": "浪5底", "date": "2022-10-31", "price": 26.8, "type": "LOW"}, {"label": "调整A浪顶", "date": "2023-04-30", "price": 48.84, "type": "HIGH"}, {"label": "调整B浪底", "date": "2023-06-30", "price": 31.21, "type": "LOW"}, {"label": "调整C浪顶", "date": "2023-08-31", "price": 37.65, "type": "HIGH"}, {"label": "续1底", "date": "2024-09-30", "price": 24.71, "type": "LOW"}, {"label": "续2顶", "date": "2024-10-31", "price": 35.52, "type": "HIGH"}, {"label": "续3底", "date": "2025-01-31", "price": 27.51, "type": "LOW"}, {"label": "续4顶", "date": "2025-03-31", "price": 34.07, "type": "HIGH"}, {"label": "续5底", "date": "2025-06-30", "price": 27.02, "type": "LOW"}, {"label": "续A浪顶", "date": "2025-10-31", "price": 34.78, "type": "HIGH"}, {"label": "续B浪底", "date": "2025-12-31", "price": 28.61, "type": "LOW"}, {"label": "续C浪顶", "date": "2026-05-31", "price": 37.09, "type": "HIGH"}, {"label": "联合调整X浪底", "date": "2022-10-31", "price": 26.8, "type": "LOW"}, {"label": "联合调整Y浪顶", "date": "2023-04-30", "price": 48.84, "type": "HIGH"}, {"label": "联合调整Y浪底", "date": "2023-06-30", "price": 31.21, "type": "LOW"}, {"label": "联合调整Z浪顶", "date": "2023-08-31", "price": 37.65, "type": "HIGH"}, {"label": "续1顶", "date": "2025-10-31", "price": 34.78, "type": "HIGH"}, {"label": "续2底", "date": "2025-12-31", "price": 28.61, "type": "LOW"}, {"label": "续3顶", "date": "2026-05-31", "price": 37.09, "type": "HIGH"}, {"label": "续4底", "date": "2026-06-30", "price": 29.76, "type": "LOW"}, {"label": "续5顶", "date": "2026-08-31", "price": 39.18, "type": "HIGH"}], "weekly": [], "weekly_wave": [], "fib": [["0%", 70.48], ["23.6%", 59.10716000000001], ["38.2%", 52.07142], ["50%", 46.385000000000005], ["61.8%", 40.69858], ["78.6%", 32.60266], ["100%", 22.29]], "supports": [32.6], "resistances": [35.5], "current": 34.98};
+const T = function(d) { return new Date(d).getTime(); };
 
 const markLines = [];
 data.fib.forEach(function(it) {
@@ -26,29 +27,55 @@ if (data.current != null) {
     markLines.push({yAxis: data.current, name: '现价', lineStyle: {color: '#ef6c00'}, label: {formatter: '现价 ' + data.current.toFixed(2), position: 'insideEndTop'}});
 }
 
-const option = {
-    title: {text: data.title, left: 'center'},
-    tooltip: {trigger: 'axis', formatter: function(p) {
-        const d = p[0]; return d.axisValue + '<br/>价格: ' + (d.value == null ? '-' : d.value.toFixed(2));
-    }},
-    grid: {left: 80, right: 60, top: 60, bottom: 60},
-    xAxis: {type: 'category', data: data.labels, name: '波浪结构', axisLabel: {rotate: 30}},
-    yAxis: {type: 'value', name: '价格', scale: true},
-    series: [{
-        type: 'line',
-        data: data.prices,
-        connectNulls: false,
-        smooth: false,
-        symbol: 'circle',
-        symbolSize: 8,
-        lineStyle: {color: '#1e88e5', width: 2.5},
-        itemStyle: {color: '#1e88e5'},
-        label: {show: true, position: 'top', formatter: function(p) { return p.value != null ? p.value.toFixed(2) : ''; }},
-        markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
-    }]
-};
-chart.setOption(option);
-window.addEventListener('resize', function() { chart.resize(); });
+function buildOption(title, series, wavePts) {
+    return {
+        title: {text: title, left: 'center', textStyle: {fontSize: 15, fontWeight: 'bold'}},
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {type: 'cross'},
+            formatter: function(params) {
+                const lines = [];
+                params.forEach(function(p) {
+                    if (p.seriesType === 'line' && p.value && p.value.length) {
+                        lines.push(new Date(p.value[0]).toISOString().slice(0,10) + ' 收盘: ' + p.value[1].toFixed(2));
+                    }
+                    if (p.seriesType === 'scatter' && p.value) {
+                        lines.push(p.name + ' @ ' + p.value[1].toFixed(2));
+                    }
+                });
+                return lines.join('<br/>');
+            }
+        },
+        legend: {data: ['收盘', '波浪转折点'], top: 26},
+        grid: {left: 60, right: 40, top: 60, bottom: 35},
+        xAxis: {type: 'time'},
+        yAxis: {type: 'value', scale: true},
+        series: [
+            {
+                name: '收盘',
+                type: 'line',
+                data: series.map(function(m) { return [T(m.date), m.close]; }),
+                showSymbol: false,
+                lineStyle: {color: '#90a4ae', width: 1.5},
+                markLine: {symbol: 'none', data: markLines, label: {position: 'insideEndTop'}},
+            },
+            {
+                name: '波浪转折点',
+                type: 'scatter',
+                data: wavePts.map(function(w) { return {name: w.label, value: [T(w.date), w.price]}; }),
+                symbolSize: 13,
+                itemStyle: {color: '#1e88e5'},
+                label: {show: true, position: 'top', formatter: function(p) { return p.name; }, fontSize: 11, color: '#333'},
+            }
+        ]
+    };
+}
+
+const chartM = echarts.init(document.getElementById('chartM'));
+chartM.setOption(buildOption('月线波浪结构（大级别趋势）', data.monthly, data.monthly_wave));
+const chartW = echarts.init(document.getElementById('chartW'));
+chartW.setOption(buildOption('周线波浪结构（中长期趋势）', data.weekly, data.weekly_wave));
+window.addEventListener('resize', function() { chartM.resize(); chartW.resize(); });
 </script>
 </body>
 </html>
