@@ -103,7 +103,7 @@ All configuration is via environment variables (see `.env.example`). The key fil
 | `DEEPSEEK_API_KEY` | DeepSeek (fallback) |
 | `GLM_API_KEY` | Zhipu GLM (fallback) |
 | `ITICK_API_KEY` | iTick data source (optional) |
-| `FINAGENT_BASE_DIR` | report output root (default `~/Documents/Harry's Vault`) |
+| `FINAGENT_BASE_DIR` | report output root (default `~/fin-agent-output`) |
 | `FINAGENT_WEBHOOK_URL` | WeChat Work push (optional) |
 
 ## FAQ

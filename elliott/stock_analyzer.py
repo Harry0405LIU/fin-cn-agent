@@ -1715,8 +1715,8 @@ def regenerate_all_stock_reports(stock_pool_file: str = None,
     批量重新生成所有个股波浪分析报告。
 
     Args:
-        stock_pool_file: 自选股票池文件路径，默认 ~/Documents/Harry's Vault/自选股票池.md
-        output_dir: 报告输出目录，默认 ~/Documents/Harry's Vault/波浪预测/每日更新/个股分析
+        stock_pool_file: 自选股票池文件路径，默认 ~/fin-agent-output/自选股票池.md
+        output_dir: 报告输出目录，默认 ~/fin-agent-output/波浪预测/每日更新/个股分析
 
     Returns:
         {'success': N, 'skip': N, 'fail': N}

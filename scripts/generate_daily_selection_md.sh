@@ -9,9 +9,9 @@ PYTHON3="/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SCRIPT_NAME="generate_daily_selection_md.py"
 
-# 输出根目录：优先 FINAGENT_BASE_DIR，否则 ~/Documents/Harry's Vault
-VAULT_DEFAULT="$HOME/Documents/Harry's Vault"
-BASE_DIR="${FINAGENT_BASE_DIR:-$VAULT_DEFAULT}"
+# 输出根目录：优先 FINAGENT_BASE_DIR，否则 ~/fin-agent-output
+OUTPUT_DEFAULT="$HOME/fin-agent-output"
+BASE_DIR="${FINAGENT_BASE_DIR:-$OUTPUT_DEFAULT}"
 
 # 日志路径
 LOG_DIR="$BASE_DIR/每日选股/logs"

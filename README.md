@@ -103,7 +103,7 @@ fin-agent/
 | `DEEPSEEK_API_KEY` | DeepSeek（备选） |
 | `GLM_API_KEY` | 智谱（备选） |
 | `ITICK_API_KEY` | iTick 数据源（可选） |
-| `FINAGENT_BASE_DIR` | 报告输出根目录（默认 `~/Documents/Harry's Vault`） |
+| `FINAGENT_BASE_DIR` | 报告输出根目录（默认 `~/fin-agent-output`） |
 | `FINAGENT_WEBHOOK_URL` | 企业微信推送（可选） |
 
 ## FAQ

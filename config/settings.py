@@ -60,10 +60,9 @@ class Settings:
         # 项目根目录
         self.PROJECT_ROOT = Path(__file__).parent.parent
 
-        # 报告输出根目录：优先 FINAGENT_BASE_DIR 环境变量，
-        # 默认 ~/Documents/Harry's Vault（兼容旧版个人 Obsidian Vault 布局）。
+        # 报告输出根目录：优先 FINAGENT_BASE_DIR 环境变量，默认 ~/fin-agent-output
         self.BASE_DIR = Path(
-            os.getenv('FINAGENT_BASE_DIR', '') or str(Path.home() / "Documents" / "Harry's Vault")
+            os.getenv('FINAGENT_BASE_DIR', '') or str(Path.home() / "fin-agent-output")
         )
 
         # 数据目录（项目内，不受 BASE_DIR 影响）
