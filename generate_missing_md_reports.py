@@ -417,8 +417,20 @@ def _generate_wave_chart_html(stock_name: str, stock_code: str, elliott_analysis
                 if isinstance(m, dict) and isinstance(m.get('close'), (int, float)) and m.get('date')]
 
     def _wave_points(points):
-        return [w for w in (points or [])
-                if isinstance(w, dict) and isinstance(w.get('price'), (int, float)) and w.get('date')]
+        # 去重(按日期+价格，多套浪型计数会重复标注同一转折点) + 按日期排序，
+        # 保证连线严格按时间相邻，不会跨点回跳。
+        seen = set()
+        result = []
+        for w in (points or []):
+            if not (isinstance(w, dict) and isinstance(w.get('price'), (int, float)) and w.get('date')):
+                continue
+            key = (w['date'], round(w['price'], 2))
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(w)
+        result.sort(key=lambda w: w['date'])
+        return result
 
     monthly = _series(elliott_analysis.get('monthly_series'))
     monthly_wave = _wave_points(elliott_analysis.get('wave_points'))
